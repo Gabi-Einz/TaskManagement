@@ -1,15 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { User } from './models/User';
+import { IOrmRepository } from 'src/shared/interfaces/IOrmRepository';
 
 @Injectable()
 export class UserService {
-  private readonly users = [
-    new User(1, 'pepe', 'klasjkldjk'),
-    new User(2, 'rodolfo', 'qweqwe'),
-    new User(3, 'admin', '123'),
-  ];
+  constructor(
+    @Inject('IOrmRepository') private iOrmRepository: IOrmRepository<User>,
+  ) {}
 
-  async findOne(username: string): Promise<User | undefined> {
-    return this.users.find((user) => user.name === username);
+  async findOne(username: string): Promise<User | null> {
+    return await this.iOrmRepository.findByName(username);
   }
 }
