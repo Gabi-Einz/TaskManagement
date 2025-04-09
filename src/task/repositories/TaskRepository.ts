@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaClient, Task } from '@prisma/client';
 import { ITaskRepository } from '../../shared/interfaces/ITaskRepository';
+import { TaskEntity } from '../models/task.entity';
 
 @Injectable()
 export class TaskRepository implements ITaskRepository<Task> {
@@ -10,7 +11,7 @@ export class TaskRepository implements ITaskRepository<Task> {
     this.prisma = new PrismaClient();
   }
 
-  async create(data: Omit<Task, 'id'>): Promise<Task> {
+  async create(data: Omit<TaskEntity, 'id'>): Promise<Task> {
     return this.prisma.task.create({
       data,
     });

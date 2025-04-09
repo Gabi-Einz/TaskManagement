@@ -12,13 +12,16 @@ import { Role } from 'src/auth/authorization/enums/role.enum';
 import { PopulateTaskResponse } from './models/populate-task.response';
 import { ITaskApiRepository } from 'src/shared/interfaces/ITaskApiRepository';
 import { MessageResponse } from './models/message.response';
-
+import { TASK_COMPLETED, TASK_CREATED } from './event/task.event';
+import { TaskEntity } from './models/task.entity';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 @Injectable()
 export class TaskService {
   constructor(
     @Inject('ITaskRepository') private iTaskRepository: ITaskRepository<Task>,
     @Inject('ITaskApiRepository')
     private iTaskApiRepository: ITaskApiRepository<PopulateTaskResponse>,
+    private eventEmitter: EventEmitter2,
   ) {}
 
   async findAndCreatePopulateTasks(): Promise<MessageResponse> {
@@ -35,7 +38,8 @@ export class TaskService {
       return true;
     });
     const tasksToCreate = uniqueTasks.map((uniqueTask) => {
-      return { ...uniqueTask, priority: 'medium' };
+      const { id, ...rest } = uniqueTask;
+      return { ...rest, priority: 'medium' };
     });
     await this.iTaskRepository.createMany(tasksToCreate);
     return new MessageResponse('tasks were created');
@@ -57,17 +61,22 @@ export class TaskService {
   }
 
   async create(createTaskDto: TaskCreationRequest, userId: number) {
-    const data = {
+    const data: TaskEntity = {
       ...createTaskDto,
       userId,
     };
-    return await this.iTaskRepository.create(data);
+    const task = await this.iTaskRepository.create(data);
+    this.eventEmitter.emit(TASK_CREATED, task);
+    return task;
   }
 
   async update(taskId: number, dto: TaskCreationRequest, userId: number) {
     const task = await this.findOneByIdAndUserId(taskId, userId);
     Object.assign(task, dto);
     task.updatedAt = new Date();
+    if (task.completed) {
+      this.eventEmitter.emit(TASK_COMPLETED, task);
+    }
     return await this.iTaskRepository.updateById(taskId, task);
   }
 

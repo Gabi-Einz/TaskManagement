@@ -3,6 +3,7 @@ import { TaskController } from './task.controller';
 import { TaskService } from './task.service';
 import { TaskRepository } from './repositories/TaskRepository';
 import { TaskApiRepository } from './repositories/task-api.repository';
+import { TaskListener } from './event/task.listener';
 
 @Module({
   controllers: [TaskController],
@@ -16,6 +17,7 @@ import { TaskApiRepository } from './repositories/task-api.repository';
       provide: 'ITaskApiRepository',
       useClass: TaskApiRepository,
     },
+    TaskListener,
   ],
 })
 export class TaskModule {}
