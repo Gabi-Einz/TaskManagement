@@ -6,6 +6,6 @@ import { User } from './models/User';
 export class UserController {
   constructor(private readonly userService: UserService) {}
   async getByUserName(userName: string): Promise<User | null> {
-    return await this.userService.findOne(userName);
+    return await this.userService.findOneByName(userName);
   }
 }

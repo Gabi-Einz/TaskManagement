@@ -1,4 +1,4 @@
-export interface IOrmRepository<T> {
+export interface IUserRepository<T> {
   create(data: Partial<T>): Promise<T>;
   updateById(id: number, data: Partial<T>): Promise<T>;
   deleteById(id: number): Promise<T>;

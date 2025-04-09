@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaClient, User } from '@prisma/client';
-import { IOrmRepository } from '../../shared/interfaces/IOrmRepository';
+import { IUserRepository } from '../../shared/interfaces/IUserRepository';
 
 @Injectable()
-export class UserRepository implements IOrmRepository<User> {
+export class UserRepository implements IUserRepository<User> {
   private prisma: PrismaClient;
 
   constructor() {

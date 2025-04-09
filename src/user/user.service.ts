@@ -1,14 +1,17 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { User } from './models/User';
-import { IOrmRepository } from 'src/shared/interfaces/IOrmRepository';
+import { IUserRepository } from 'src/shared/interfaces/IUserRepository';
 
 @Injectable()
 export class UserService {
   constructor(
-    @Inject('IOrmRepository') private iOrmRepository: IOrmRepository<User>,
+    @Inject('IUserRepository') private iUserRepository: IUserRepository<User>,
   ) {}
 
-  async findOne(username: string): Promise<User | null> {
-    return await this.iOrmRepository.findByName(username);
+  async findOneByName(username: string): Promise<User | null> {
+    return await this.iUserRepository.findByName(username);
+  }
+  async findOneById(userId: number): Promise<User | null> {
+    return await this.iUserRepository.findById(userId);
   }
 }

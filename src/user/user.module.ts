@@ -8,7 +8,7 @@ import { UserRepository } from './repositories/UserRepository';
   providers: [
     UserService,
     {
-      provide: 'IOrmRepository',
+      provide: 'IUserRepository',
       useClass: UserRepository,
     },
   ],
