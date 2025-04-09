@@ -19,7 +19,7 @@ export class AuthService {
     if (password != user?.password) {
       throw new UnauthorizedException();
     }
-    const payload = { sub: user.id, username: user.name };
+    const payload = { sub: user.id, username: user.name, role: user.role };
     const accessToken = await this.jwtService.signAsync(payload, {
       secret: process.env.JWT_ACCESS_SECRET,
       expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRE_IN,
@@ -38,7 +38,11 @@ export class AuthService {
       });
 
       const newAccessToken = this.jwtService.sign(
-        { sub: payload.sub, username: payload.username } as Payload,
+        {
+          sub: payload.sub,
+          username: payload.username,
+          role: payload.role,
+        } as Payload,
         {
           secret: process.env.JWT_ACCESS_SECRET,
           expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRE_IN,
