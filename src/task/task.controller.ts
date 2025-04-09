@@ -20,6 +20,7 @@ import { RolesGuard } from 'src/auth/authorization/guards/role.guard';
 import { Roles } from 'src/auth/authorization/decorators/role.decorator';
 import { Role } from 'src/auth/authorization/enums/role.enum';
 import { HttpStatusCode } from 'src/shared/enums/http-status-code.enum';
+import { MessageResponse } from './models/message.response';
 
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('tasks')
@@ -31,6 +32,13 @@ export class TaskController {
   @Roles([Role.ADMIN, Role.USER])
   async findAll(@Req() req: RequestWithUser): Promise<Task[]> {
     return await this.taskService.findAllByUser(req.user.sub);
+  }
+
+  @Get('populate')
+  @HttpCode(HttpStatusCode.OK)
+  @Roles([Role.ADMIN, Role.USER])
+  async findAndCreatePopulateTasks(): Promise<MessageResponse> {
+    return await this.taskService.findAndCreatePopulateTasks();
   }
 
   @Post()

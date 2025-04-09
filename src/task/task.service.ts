@@ -9,12 +9,37 @@ import { Task } from './models/Task';
 import { TaskCreationRequest } from './models/task-creation.request';
 import { RequestWithUser } from 'src/auth/models/RequestWithUser';
 import { Role } from 'src/auth/authorization/enums/role.enum';
+import { PopulateTaskResponse } from './models/populate-task.response';
+import { ITaskApiRepository } from 'src/shared/interfaces/ITaskApiRepository';
+import { MessageResponse } from './models/message.response';
 
 @Injectable()
 export class TaskService {
   constructor(
     @Inject('ITaskRepository') private iTaskRepository: ITaskRepository<Task>,
+    @Inject('ITaskApiRepository')
+    private iTaskApiRepository: ITaskApiRepository<PopulateTaskResponse>,
   ) {}
+
+  async findAndCreatePopulateTasks(): Promise<MessageResponse> {
+    const tasks: PopulateTaskResponse[] =
+      await this.iTaskApiRepository.findAndCreatePopulateTasks();
+
+    const seen = new Set();
+    const uniqueTasks = tasks.filter((item) => {
+      const key: string = `${item.userId}-${item.title}`;
+      if (seen.has(key)) {
+        return false;
+      }
+      seen.add(key);
+      return true;
+    });
+    const tasksToCreate = uniqueTasks.map((uniqueTask) => {
+      return { ...uniqueTask, priority: 'medium' };
+    });
+    await this.iTaskRepository.createMany(tasksToCreate);
+    return new MessageResponse('tasks were created');
+  }
 
   async findAllByUser(userId: number): Promise<Task[]> {
     return await this.iTaskRepository.findAllByUserId(userId);

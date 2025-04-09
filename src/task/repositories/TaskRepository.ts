@@ -16,6 +16,13 @@ export class TaskRepository implements ITaskRepository<Task> {
     });
   }
 
+  async createMany(data: Omit<Task, 'id'>[]): Promise<void> {
+    await this.prisma.task.createMany({
+      data,
+      skipDuplicates: true,
+    });
+  }
+
   async findAllByUserId(userId: number): Promise<Task[]> {
     return this.prisma.task.findMany({
       where: { userId },
