@@ -22,6 +22,12 @@ export class TaskRepository implements ITaskRepository<Task> {
     });
   }
 
+  async findOneByIdAndUserId(id: number, userId: number): Promise<Task | null> {
+    return this.prisma.task.findUnique({
+      where: { id, userId },
+    });
+  }
+
   async findOneById(id: number): Promise<Task | null> {
     return this.prisma.task.findUnique({
       where: { id },

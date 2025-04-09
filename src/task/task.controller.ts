@@ -9,50 +9,70 @@ import {
   ParseIntPipe,
   Req,
   UseGuards,
+  HttpCode,
 } from '@nestjs/common';
 import { TaskService } from './task.service';
 import { Task } from './models/Task';
-import { JwtAuthGuard } from 'src/auth/jwt/guards/jwt-auth.guard';
+import { JwtAuthGuard } from 'src/auth/authentication/jwt/guards/jwt-auth.guard';
 import { RequestWithUser } from 'src/auth/models/RequestWithUser';
 import { TaskCreationRequest } from './models/task-creation.request';
+import { RolesGuard } from 'src/auth/authorization/guards/role.guard';
+import { Roles } from 'src/auth/authorization/decorators/role.decorator';
+import { Role } from 'src/auth/authorization/enums/role.enum';
+import { HttpStatusCode } from 'src/shared/enums/http-status-code.enum';
 
+@UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('tasks')
 export class TaskController {
   constructor(private readonly taskService: TaskService) {}
 
-  @UseGuards(JwtAuthGuard)
   @Get()
+  @HttpCode(HttpStatusCode.OK)
+  @Roles([Role.ADMIN, Role.USER])
   async findAll(@Req() req: RequestWithUser): Promise<Task[]> {
     return await this.taskService.findAllByUser(req.user.sub);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Post()
-  create(
+  @HttpCode(HttpStatusCode.CREATED)
+  @Roles([Role.ADMIN, Role.USER])
+  async create(
     @Body() taskCreationRequest: TaskCreationRequest,
     @Req() req: RequestWithUser,
   ) {
-    return this.taskService.create(taskCreationRequest, req.user.sub);
+    return await this.taskService.create(taskCreationRequest, req.user.sub);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.taskService.findOneById(id);
+  @HttpCode(HttpStatusCode.OK)
+  @Roles([Role.ADMIN, Role.USER])
+  async findOne(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() req: RequestWithUser,
+  ) {
+    return await this.taskService.findOneByIdAndUserId(id, req.user.sub);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Patch(':id')
-  update(
+  @HttpCode(HttpStatusCode.NO_CONTENT)
+  @Roles([Role.ADMIN, Role.USER])
+  async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() dto: TaskCreationRequest,
+    @Req() req: RequestWithUser,
   ) {
-    return this.taskService.update(id, dto);
+    await this.taskService.update(id, dto, req.user.sub);
+    return {};
   }
 
-  @UseGuards(JwtAuthGuard)
   @Delete(':id')
-  remove(@Param('id', ParseIntPipe) id: number, @Req() req: RequestWithUser) {
-    return this.taskService.remove(id, req);
+  @HttpCode(HttpStatusCode.NO_CONTENT)
+  @Roles([Role.ADMIN, Role.USER])
+  async remove(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() req: RequestWithUser,
+  ) {
+    await this.taskService.remove(id, req);
+    return {};
   }
 }
