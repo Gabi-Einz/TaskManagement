@@ -2,7 +2,7 @@
 Install docker  
 Install docker-compose  
 Use node v20.12.0
-Install nestjs: npm install -g @nestjs/cli  
+Install nestjs: npm install -g @nestjs/cli    
 
 ## Installation  
 
