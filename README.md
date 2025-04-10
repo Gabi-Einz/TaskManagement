@@ -5,7 +5,7 @@ Use node v20.12.0
 
 ## Installation  
 
-Execute the next commands:
+Execute the next commands:  
 1- Download project: git clone https://github.com/Gabi-Einz/TaskManagement.git  
 2- Switch to develop branch: git checkout develop  
 3- Copy and paste ".env" file in the root folder of the project.  
