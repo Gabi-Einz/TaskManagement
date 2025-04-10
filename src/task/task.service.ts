@@ -15,6 +15,7 @@ import { MessageResponse } from './models/message.response';
 import { TASK_COMPLETED, TASK_CREATED } from './event/task.event';
 import { TaskEntity } from './models/task.entity';
 import { EventEmitter2 } from '@nestjs/event-emitter';
+import { RedisService } from 'src/shared/redis/redis.service';
 @Injectable()
 export class TaskService {
   constructor(
@@ -22,6 +23,7 @@ export class TaskService {
     @Inject('ITaskApiRepository')
     private iTaskApiRepository: ITaskApiRepository<PopulateTaskResponse>,
     private eventEmitter: EventEmitter2,
+    private readonly redisService: RedisService,
   ) {}
 
   async findAndCreatePopulateTasks(): Promise<MessageResponse> {
@@ -46,7 +48,15 @@ export class TaskService {
   }
 
   async findAllByUser(userId: number): Promise<Task[]> {
-    return await this.iTaskRepository.findAllByUserId(userId);
+    const cachedTasks = await this.redisService.get(String(userId));
+    if (cachedTasks) {
+      console.info('Returning cached tasks data');
+      return JSON.parse(cachedTasks) as Task[];
+    }
+    const tasks: Task[] = await this.iTaskRepository.findAllByUserId(userId);
+    await this.redisService.set(String(userId), JSON.stringify(tasks), 10);
+    console.log('Caching tasks by userId');
+    return tasks;
   }
 
   async findOneByIdAndUserId(taskId: number, userId: number) {
