@@ -5,9 +5,31 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { TaskModule } from './task/task.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { seconds, ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
+
 @Module({
-  imports: [AuthModule, UserModule, TaskModule, EventEmitterModule.forRoot()],
+  imports: [
+    AuthModule,
+    UserModule,
+    TaskModule,
+    EventEmitterModule.forRoot(),
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          limit: 5,
+          ttl: seconds(60),
+        },
+      ],
+    }),
+  ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}

@@ -21,7 +21,9 @@ import { Roles } from 'src/auth/authorization/decorators/role.decorator';
 import { Role } from 'src/auth/authorization/enums/role.enum';
 import { HttpStatusCode } from 'src/shared/enums/http-status-code.enum';
 import { MessageResponse } from './models/message.response';
+import { SkipThrottle } from '@nestjs/throttler';
 
+@SkipThrottle()
 @UseGuards(JwtAuthGuard, RolesGuard)
 @Controller('tasks')
 export class TaskController {
