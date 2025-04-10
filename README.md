@@ -1,9 +1,9 @@
-## H2 Prerequisites
+## Prerequisites
 Install docker
 Install docker-compose
 Use node v20.12.0
 
-## H2 Installation
+## Installation
 
 Execute the next commands:
 1- Download project: git clone https://github.com/Gabi-Einz/TaskManagement.git
@@ -16,5 +16,5 @@ Execute the next commands:
 8- Execute SQL queries, insert mock users in postgresql database using file "_User__202504100054.sql"
 9- Start nestjs project: npm run start
 
-## H2 How to use?
+## How to use?
 1- import "thunder-collection_postman_TaskManagement.json" file using client like postman.
